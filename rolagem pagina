@@ -1,1 +1,84 @@
+function custom_scroll_shortcode() {
+    ob_start();
+    ?>
+    <label for="scrollSpeed">Rolagem:</label>
+    <input type="range" id="scrollSpeed" min="0" max="0.05" step="0.001" value="0.02">
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var animationId;
+            var manualScrolling = false;
+            var startPosition;
+
+            document.getElementById('scrollSpeed').addEventListener('input', function () {
+                var speed = this.value;
+                setScrollSpeed(speed);
+            });
+
+            window.addEventListener('scroll', function () {
+                if (!manualScrolling) {
+                    startPosition = window.scrollY;
+                }
+            });
+
+            window.addEventListener('wheel', function () {
+                manualScrolling = true;
+                stopAutoScroll();
+            });
+
+            function setScrollSpeed(speed) {
+                cancelAnimationFrame(animationId);
+
+                var parsedSpeed = parseFloat(speed);
+
+                if (parsedSpeed !== 0) {
+                    animateScroll(parsedSpeed);
+                }
+            }
+
+            function animateScroll(speed) {
+                var startTime;
+                var currentPosition = window.scrollY;
+
+                function scrollStep(timestamp) {
+                    if (!startTime) {
+                        startTime = timestamp;
+                    }
+
+                    var progress = timestamp - startTime;
+                    var newPosition = currentPosition + progress * speed;
+
+                    window.scrollTo({
+                        top: newPosition,
+                        behavior: 'auto'
+                    });
+
+                    if (newPosition < document.documentElement.scrollHeight - window.innerHeight) {
+                        animationId = requestAnimationFrame(scrollStep);
+                    } else {
+                        stopAutoScroll();
+                    }
+                }
+
+                animationId = requestAnimationFrame(scrollStep);
+            }
+
+            function stopAutoScroll() {
+                manualScrolling = false;
+                cancelAnimationFrame(animationId);
+            }
+        });
+    </script>
+
+    <style>
+        #scrollSpeed {
+            width: 100%;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+    <?php
+    return ob_get_clean();
+}
+
+add_shortcode('custom_scroll', 'custom_scroll_shortcode');
