@@ -82,3 +82,10 @@ function custom_scroll_shortcode() {
 }
 
 add_shortcode('custom_scroll', 'custom_scroll_shortcode');
+
+
+<!--The page scroll function works with the shortcode
+
+[custom_scroll]
+
+From the line where this shortcode is placed, the page will start to scroll when activated by the user-->
